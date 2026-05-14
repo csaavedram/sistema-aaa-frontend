@@ -40,3 +40,25 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Environments con valores reales — usar environment.ts sin valores sensibles
+src/environments/
+
+# Seguridad — NUNCA versionar estos archivos
+*.pem
+*.key
+*.p12
+*.pfx
+*.cer
+*.crt
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+ 
+# Azure / CI-CD
+.terraform/
+*.tfstate
+*.tfstate.backup
+.azure/

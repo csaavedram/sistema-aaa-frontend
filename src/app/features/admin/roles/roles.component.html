@@ -1,0 +1,111 @@
+<mat-card class="page-card">
+  <mat-card-header>
+    <mat-card-title>Roles</mat-card-title>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="openCreateDialog()">
+        <mat-icon>add</mat-icon>
+        Nuevo rol
+      </button>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+
+    @if (error()) {
+      <div class="error-banner" role="alert">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    <div class="table-container">
+
+      @if (isLoading()) {
+        <div class="loading-overlay">
+          <mat-spinner diameter="48" />
+        </div>
+      }
+
+      <table mat-table [dataSource]="roles()" class="full-width">
+
+        <!-- Nombre -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Nombre</th>
+          <td mat-cell *matCellDef="let role">
+            <strong>{{ role.name }}</strong>
+          </td>
+        </ng-container>
+
+        <!-- Descripción -->
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef>Descripción</th>
+          <td mat-cell *matCellDef="let role">{{ role.description }}</td>
+        </ng-container>
+
+        <!-- Sistema -->
+        <ng-container matColumnDef="isSystem">
+          <th mat-header-cell *matHeaderCellDef>Tipo</th>
+          <td mat-cell *matCellDef="let role">
+            <span class="status-chip" [class.system]="role.isSystem" [class.custom]="!role.isSystem">
+              {{ role.isSystem ? 'Sistema' : 'Personalizado' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Acciones -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let role">
+            <button
+              mat-icon-button
+              (click)="onManageRole(role)"
+              matTooltip="Gestionar rol"
+              aria-label="Gestionar rol"
+            >
+              <mat-icon>manage_accounts</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="accent"
+              (click)="onViewPermissions(role)"
+              matTooltip="Ver permisos"
+              aria-label="Ver permisos"
+            >
+              <mat-icon>security</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="primary"
+              (click)="onAssignToUser(role)"
+              matTooltip="Asignar rol a usuario"
+              aria-label="Asignar rol a usuario"
+            >
+              <mat-icon>person_add</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="warn"
+              [disabled]="role.isSystem"
+              (click)="onDeleteRole(role.id)"
+              [matTooltip]="role.isSystem ? 'Los roles del sistema no se pueden eliminar' : 'Eliminar rol'"
+              aria-label="Eliminar rol"
+            >
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell empty-row" [attr.colspan]="displayedColumns.length">
+            No hay roles registrados
+          </td>
+        </tr>
+
+      </table>
+    </div>
+
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,70 @@
+<mat-sidenav-container class="sidenav-container">
+
+  <mat-sidenav
+    #sidenav
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="!isMobile()"
+    class="sidenav"
+  >
+    <div class="sidenav-header">
+      <span class="sidenav-title">Sistema AAA</span>
+    </div>
+
+    <mat-nav-list>
+      <a mat-list-item routerLink="/admin/users" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>people</mat-icon>
+        <span matListItemTitle>Usuarios</span>
+      </a>
+      @if (isAdmin()) {
+        <a mat-list-item routerLink="/admin/roles" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
+          <span matListItemTitle>Roles</span>
+        </a>
+      }
+      <a mat-list-item routerLink="/admin/audit" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>history</mat-icon>
+        <span matListItemTitle>Auditoría</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+
+    <mat-toolbar color="primary" class="toolbar">
+      @if (isMobile()) {
+        <button
+          mat-icon-button
+          (click)="sidenav.toggle()"
+          aria-label="Abrir menú de navegación"
+        >
+          <mat-icon>menu</mat-icon>
+        </button>
+      }
+      <span class="toolbar-title">Sistema AAA</span>
+      <span class="toolbar-spacer"></span>
+      <span class="user-email">{{ currentUser()?.email }}</span>
+      <button
+        mat-icon-button
+        (click)="onChangePassword()"
+        matTooltip="Cambiar contraseña"
+        aria-label="Cambiar contraseña"
+      >
+        <mat-icon>lock_reset</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        (click)="onLogout()"
+        matTooltip="Cerrar sesión"
+        aria-label="Cerrar sesión"
+      >
+        <mat-icon>logout</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <main class="main-content">
+      <router-outlet />
+    </main>
+
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

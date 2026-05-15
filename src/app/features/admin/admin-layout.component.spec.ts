@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withDisabledInitialNavigation } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { signal } from '@angular/core';
@@ -30,7 +30,7 @@ describe('AdminLayoutComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AdminLayoutComponent],
       providers: [
-        provideRouter([]),
+        provideRouter([], withDisabledInitialNavigation()),
         provideNoopAnimations(),
         { provide: AuthService, useValue: mockAuthService },
         { provide: BreakpointObserver, useValue: mockBreakpointObserver },

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router, withDisabledInitialNavigation } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { Subject, of, throwError } from 'rxjs';
@@ -10,19 +10,22 @@ describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
+  let navigateSpy: jasmine.Spy;
 
   beforeEach(async () => {
-    const spy = jasmine.createSpyObj('AuthService', ['login']);
+    const authSpy = jasmine.createSpyObj('AuthService', ['login']);
 
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
       providers: [
-        provideRouter([]),
+        provideRouter([], withDisabledInitialNavigation()),
         provideHttpClient(),
         provideNoopAnimations(),
-        { provide: AuthService, useValue: spy },
+        { provide: AuthService, useValue: authSpy },
       ],
     }).compileComponents();
+
+    navigateSpy = spyOn(TestBed.inject(Router), 'navigate');
 
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
@@ -36,7 +39,7 @@ describe('LoginComponent', () => {
 
   it('should not submit if form is invalid', () => {
     component.onSubmit();
-    
+
     expect(authServiceSpy.login).not.toHaveBeenCalled();
     expect(component.isLoading()).toBeFalse();
   });
@@ -44,13 +47,14 @@ describe('LoginComponent', () => {
   it('should call authService.login with form values on valid submit', () => {
     authServiceSpy.login.and.returnValue(of(undefined));
     component.form.patchValue({ email: 'qa@test.com', password: 'ValidPassword123!' });
-    
+
     component.onSubmit();
 
-    expect(authServiceSpy.login).toHaveBeenCalledWith({ 
-      email: 'qa@test.com', 
-      password: 'ValidPassword123!' 
+    expect(authServiceSpy.login).toHaveBeenCalledWith({
+      email: 'qa@test.com',
+      password: 'ValidPassword123!',
     });
+    expect(navigateSpy).toHaveBeenCalledWith(['/admin/users']);
   });
 
   it('should display error message on login failure', () => {
@@ -63,22 +67,17 @@ describe('LoginComponent', () => {
   });
 
   it('should set isLoading to true while the request is pending and false after completion', () => {
-    // Arrange: Subject permite controlar cuándo emite el observable
     const loginSubject = new Subject<void>();
     authServiceSpy.login.and.returnValue(loginSubject.asObservable());
     component.form.patchValue({ email: 'qa@test.com', password: 'ValidPassword123!' });
 
-    // Act: enviar el formulario — el observable queda pendiente
     component.onSubmit();
 
-    // Assert: durante la petición en vuelo, isLoading debe ser true
     expect(component.isLoading()).toBeTrue();
 
-    // Act: el servidor responde y el observable completa
     loginSubject.next();
     loginSubject.complete();
 
-    // Assert: finalize() ejecuta isLoading.set(false)
     expect(component.isLoading()).toBeFalse();
   });
 });

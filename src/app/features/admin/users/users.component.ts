@@ -27,7 +27,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../../core/services/auth.service';
 import { UsersService } from '../../../core/services/users.service';
 import { RolesService } from '../../../core/services/roles.service';
-import { CreateUserRequest, UpdateUserRequest, User } from '../../../core/models/users.models';
+import { UpdateUserRequest, User } from '../../../core/models/users.models';
 import { Permission, Role } from '../../../core/models/roles.models';
 import { AppError } from '../../../core/models/auth.models';
 

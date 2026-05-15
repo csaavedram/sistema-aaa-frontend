@@ -15,7 +15,6 @@
     "declaration": false,
     "experimentalDecorators": true,
     "moduleResolution": "bundler",
-    "ignoreDeprecations": "6.0",
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,

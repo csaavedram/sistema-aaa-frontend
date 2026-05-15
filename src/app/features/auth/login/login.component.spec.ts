@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { LoginComponent } from './login.component';
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -56,9 +56,29 @@ describe('LoginComponent', () => {
   it('should display error message on login failure', () => {
     authServiceSpy.login.and.returnValue(throwError(() => ({ errorCode: 'AUTH_INVALID_CREDENTIALS' })));
     component.form.patchValue({ email: 'qa@test.com', password: 'WrongPassword!' });
-    
+
     component.onSubmit();
 
     expect(component.errorMessage()).toBe('Email o contraseña incorrectos');
+  });
+
+  it('should set isLoading to true while the request is pending and false after completion', () => {
+    // Arrange: Subject permite controlar cuándo emite el observable
+    const loginSubject = new Subject<void>();
+    authServiceSpy.login.and.returnValue(loginSubject.asObservable());
+    component.form.patchValue({ email: 'qa@test.com', password: 'ValidPassword123!' });
+
+    // Act: enviar el formulario — el observable queda pendiente
+    component.onSubmit();
+
+    // Assert: durante la petición en vuelo, isLoading debe ser true
+    expect(component.isLoading()).toBeTrue();
+
+    // Act: el servidor responde y el observable completa
+    loginSubject.next();
+    loginSubject.complete();
+
+    // Assert: finalize() ejecuta isLoading.set(false)
+    expect(component.isLoading()).toBeFalse();
   });
 });

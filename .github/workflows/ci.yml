@@ -1,0 +1,61 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# CI – sistema-aaa-frontend
+#
+# Repositorio: sistema-aaa-frontend (raíz = carpeta frontend/)
+#
+# Dispara en:
+#   • push a 'main'
+#   • pull_request que apunta a 'main'
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancela ejecuciones anteriores del mismo PR para ahorrar minutos de Actions.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ───────────────────────────────────────────────────────────────────────────
+  # JOB — Frontend (Angular)
+  # Los comandos se ejecutan en la raíz del repositorio (sistema-aaa-frontend),
+  # donde reside package.json directamente.
+  # ───────────────────────────────────────────────────────────────────────────
+  frontend:
+    name: Frontend (Angular)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ── Lint ─────────────────────────────────────────────────────────────
+      # Requiere @angular-eslint configurado en angular.json.
+      # Para activarlo: ng add @angular-eslint/schematics
+      # Una vez configurado, cambia 'continue-on-error' a 'false'.
+      - name: Lint
+        run: npx ng lint
+        continue-on-error: true
+
+      # ── Tests ────────────────────────────────────────────────────────────
+      # ChromeHeadless es obligatorio en runners CI sin display server.
+      # Si el runner reporta errores de sandbox, añade un custom launcher
+      # 'ChromeHeadlessCI' en karma.conf.js con la flag --no-sandbox.
+      - name: Tests (Karma + Jasmine)
+        run: npm test -- --watch=false --browsers=ChromeHeadless

@@ -53,6 +53,18 @@ jobs:
         run: npx ng lint
         continue-on-error: true
 
+      - name: Create Dummy Environment for Tests
+        run: |
+          mkdir -p src/environments
+          echo "export const environment = { 
+            production: false, 
+            apiUrl: 'http://localhost:5000/api/v1' 
+          };" > src/environments/environment.ts
+          echo "export const environment = { 
+            production: true, 
+            apiUrl: 'https://api.sistema-aaa.com/api/v1' 
+          };" > src/environments/environment.prod.ts
+
       # ── Tests ────────────────────────────────────────────────────────────
       # ChromeHeadless es obligatorio en runners CI sin display server.
       # Si el runner reporta errores de sandbox, añade un custom launcher
